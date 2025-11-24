@@ -36,8 +36,8 @@
 
 static const char *TAG = "LSM6DS3_EXAMPLE";
 
-#define I2C_MASTER_SCL_IO           22
-#define I2C_MASTER_SDA_IO           21
+#define I2C_MASTER_SCL_IO           8
+#define I2C_MASTER_SDA_IO           7
 #define I2C_MASTER_NUM              0
 #define I2C_MASTER_FREQ_HZ          400000
 #define LSM6DS3_I2C_ADDR            0x6A
