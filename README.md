@@ -297,6 +297,36 @@ X    Y    Z  |  X    Y    Z  | Roll Pitch Yaw | Roll Pitch | Angle
   - **Madgwick `beta` parameter**: Lower values (0.01-0.1) increase reliance on accelerometer data, while higher values favor gyroscope measurements
   - **Complementary `alpha` parameter**: Higher values (0.95-0.99) increase trust in gyroscope data, while lower values place greater emphasis on accelerometer readings
 
+## Technical Notes
+
+### Data Reading Implementation
+
+The driver uses a struct (`lsm6ds3_reg_t`) to hold sensor data, which contains both `uint8_t u8bit[6]` and `int16_t i16bit[3]` arrays. Since this is a struct (not a union), the arrays occupy separate memory locations. When reading raw sensor data, bytes are written to `u8bit`, but the `i16bit` array does not automatically update.
+
+To ensure correct data interpretation, the driver **manually reconstructs** the `int16_t` values from the `uint8_t` bytes using little-endian byte order:
+
+```c
+// After reading bytes into u8bit[6]:
+data_raw.i16bit[0] = (int16_t)((u8bit[1] << 8) | u8bit[0]);
+data_raw.i16bit[1] = (int16_t)((u8bit[3] << 8) | u8bit[2]);
+data_raw.i16bit[2] = (int16_t)((u8bit[5] << 8) | u8bit[4]);
+```
+
+This reconstruction is performed in:
+- `lsm6ds3_read_accel()` and `lsm6ds3_read_accel_raw()`
+- `lsm6ds3_read_gyro()` and `lsm6ds3_read_gyro_raw()`
+
+**Important**: If modifying the driver code, ensure that `int16_t` values are always manually reconstructed from the byte array before use. Directly accessing `i16bit` after reading into `u8bit` will result in incorrect sensor readings and calibration failures.
+
+### I2C Communication
+
+The driver supports both I2C and SPI interfaces. For I2C:
+- Default address: **0x6A** (SA0 pin LOW)
+- Alternative address: **0x6B** (SA0 pin HIGH)
+- The driver automatically probes both addresses during initialization if the default address fails
+
+The I2C implementation reads sensor registers byte-by-byte in a loop to ensure reliable communication, matching the behavior of other ESP-IDF I2C drivers.
+
 ## Project Structure
 
 ```

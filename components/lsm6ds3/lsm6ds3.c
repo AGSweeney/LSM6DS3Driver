@@ -290,9 +290,17 @@ esp_err_t lsm6ds3_read_accel(lsm6ds3_handle_t *handle, float accel_mg[3])
     }
     
     lsm6ds3_reg_t data_raw_acceleration;
+    memset(data_raw_acceleration.u8bit, 0xFF, 6);  // Initialize to 0xFF to detect if read fails
+    memset(data_raw_acceleration.i16bit, 0, sizeof(data_raw_acceleration.i16bit));  // Also clear int16 array
+    
     if (lsm6ds3_acceleration_raw_get(&handle->ctx, data_raw_acceleration.u8bit) != 0) {
         return ESP_FAIL;
     }
+    
+    // Manually reconstruct i16 from bytes (little-endian)
+    data_raw_acceleration.i16bit[0] = (int16_t)((data_raw_acceleration.u8bit[1] << 8) | data_raw_acceleration.u8bit[0]);
+    data_raw_acceleration.i16bit[1] = (int16_t)((data_raw_acceleration.u8bit[3] << 8) | data_raw_acceleration.u8bit[2]);
+    data_raw_acceleration.i16bit[2] = (int16_t)((data_raw_acceleration.u8bit[5] << 8) | data_raw_acceleration.u8bit[4]);
     
     lsm6ds3_fs_xl_t fs;
     if (lsm6ds3_xl_full_scale_get(&handle->ctx, &fs) != 0) {
@@ -340,9 +348,17 @@ esp_err_t lsm6ds3_read_gyro(lsm6ds3_handle_t *handle, float gyro_mdps[3])
     }
     
     lsm6ds3_reg_t data_raw_angular_rate;
+    memset(data_raw_angular_rate.u8bit, 0xFF, 6);  // Initialize to 0xFF to detect if read fails
+    memset(data_raw_angular_rate.i16bit, 0, sizeof(data_raw_angular_rate.i16bit));  // Also clear int16 array
+    
     if (lsm6ds3_angular_rate_raw_get(&handle->ctx, data_raw_angular_rate.u8bit) != 0) {
         return ESP_FAIL;
     }
+    
+    // Manually reconstruct i16 from bytes (little-endian)
+    data_raw_angular_rate.i16bit[0] = (int16_t)((data_raw_angular_rate.u8bit[1] << 8) | data_raw_angular_rate.u8bit[0]);
+    data_raw_angular_rate.i16bit[1] = (int16_t)((data_raw_angular_rate.u8bit[3] << 8) | data_raw_angular_rate.u8bit[2]);
+    data_raw_angular_rate.i16bit[2] = (int16_t)((data_raw_angular_rate.u8bit[5] << 8) | data_raw_angular_rate.u8bit[4]);
     
     lsm6ds3_fs_g_t fs;
     if (lsm6ds3_gy_full_scale_get(&handle->ctx, &fs) != 0) {
@@ -408,9 +424,17 @@ static esp_err_t lsm6ds3_read_accel_raw(lsm6ds3_handle_t *handle, float accel_mg
     }
     
     lsm6ds3_reg_t data_raw_acceleration;
+    memset(data_raw_acceleration.u8bit, 0xFF, 6);  // Initialize to 0xFF to detect if read fails
+    memset(data_raw_acceleration.i16bit, 0, sizeof(data_raw_acceleration.i16bit));  // Also clear int16 array
+    
     if (lsm6ds3_acceleration_raw_get(&handle->ctx, data_raw_acceleration.u8bit) != 0) {
         return ESP_FAIL;
     }
+    
+    // Manually reconstruct i16 from bytes (little-endian)
+    data_raw_acceleration.i16bit[0] = (int16_t)((data_raw_acceleration.u8bit[1] << 8) | data_raw_acceleration.u8bit[0]);
+    data_raw_acceleration.i16bit[1] = (int16_t)((data_raw_acceleration.u8bit[3] << 8) | data_raw_acceleration.u8bit[2]);
+    data_raw_acceleration.i16bit[2] = (int16_t)((data_raw_acceleration.u8bit[5] << 8) | data_raw_acceleration.u8bit[4]);
     
     lsm6ds3_fs_xl_t fs;
     if (lsm6ds3_xl_full_scale_get(&handle->ctx, &fs) != 0) {
@@ -452,9 +476,17 @@ static esp_err_t lsm6ds3_read_gyro_raw(lsm6ds3_handle_t *handle, float gyro_mdps
     }
     
     lsm6ds3_reg_t data_raw_angular_rate;
+    memset(data_raw_angular_rate.u8bit, 0xFF, 6);  // Initialize to 0xFF to detect if read fails
+    memset(data_raw_angular_rate.i16bit, 0, sizeof(data_raw_angular_rate.i16bit));  // Also clear int16 array
+    
     if (lsm6ds3_angular_rate_raw_get(&handle->ctx, data_raw_angular_rate.u8bit) != 0) {
         return ESP_FAIL;
     }
+    
+    // Manually reconstruct i16 from bytes (little-endian)
+    data_raw_angular_rate.i16bit[0] = (int16_t)((data_raw_angular_rate.u8bit[1] << 8) | data_raw_angular_rate.u8bit[0]);
+    data_raw_angular_rate.i16bit[1] = (int16_t)((data_raw_angular_rate.u8bit[3] << 8) | data_raw_angular_rate.u8bit[2]);
+    data_raw_angular_rate.i16bit[2] = (int16_t)((data_raw_angular_rate.u8bit[5] << 8) | data_raw_angular_rate.u8bit[4]);
     
     lsm6ds3_fs_g_t fs;
     if (lsm6ds3_gy_full_scale_get(&handle->ctx, &fs) != 0) {
